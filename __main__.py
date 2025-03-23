@@ -74,23 +74,6 @@ aws.iam.RolePolicyAttachment("ecrReadOnly",
     policy_arn="arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 )
 
-# Create Security Group for EKS Nodes
-node_sg = aws.ec2.SecurityGroup("eks-node-sg",
-    vpc_id=vpc.id,
-    ingress=[{
-        "protocol": "-1",
-        "from_port": 0,
-        "to_port": 0,
-        "cidr_blocks": ["0.0.0.0/0"]
-    }],
-    egress=[{
-        "protocol": "-1",
-        "from_port": 0,
-        "to_port": 0,
-        "cidr_blocks": ["0.0.0.0/0"]
-    }]
-)
-
 # Create an EKS Cluster (without default node group)
 cluster = eks.Cluster("my-eks-cluster",
     vpc_id=vpc.id,
@@ -98,7 +81,7 @@ cluster = eks.Cluster("my-eks-cluster",
     skip_default_node_group=True
 )
 
-# Create a Managed Node Group with Correct IAM Role and Security Group
+# Create a Managed Node Group (FIXED: Removed `node_security_group`)
 node_group = eks.ManagedNodeGroup("my-node-group",
     cluster=cluster,
     node_group_name="eks-node-group",
@@ -109,8 +92,7 @@ node_group = eks.ManagedNodeGroup("my-node-group",
         "desired_size": 1,
         "min_size": 1,
         "max_size": 2
-    },
-    node_security_group=node_sg
+    }
 )
 
 # Export kubeconfig
