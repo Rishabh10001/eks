@@ -78,7 +78,8 @@ aws.iam.RolePolicyAttachment("ecrReadOnly",
 cluster = eks.Cluster("my-eks-cluster",
     vpc_id=vpc.id,
     public_subnet_ids=[subnet1.id, subnet2.id],
-    skip_default_node_group=True
+    skip_default_node_group=True,
+    instance_roles=[node_role]
 )
 
 # Create a Managed Node Group (FIXED: Removed `node_security_group`)
