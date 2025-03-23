@@ -103,10 +103,7 @@ cluster = eks.Cluster("my-eks-cluster",
     public_subnet_ids=[subnet1.id, subnet2.id],
     skip_default_node_group=True,
     instance_roles=[node_role],
-    endpoint_public_access=True,  # ✅ Ensure public API access for debugging
-    vpc_config={
-        "security_group_ids": [eks_security_group.id]
-    }
+    endpoint_public_access=True  # ✅ Ensure public API access for debugging
 )
 
 # Create a Managed Node Group
