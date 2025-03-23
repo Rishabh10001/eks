@@ -58,7 +58,7 @@ node_role = aws.iam.Role("eks-node-role",
     }""")
 )
 
-# Attach EKS Managed Policies to the Role
+# ✅ Attach Required Policies for Nodes
 aws.iam.RolePolicyAttachment("eksWorkerNodePolicy",
     role=node_role.name,
     policy_arn="arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
@@ -74,15 +74,40 @@ aws.iam.RolePolicyAttachment("ecrReadOnly",
     policy_arn="arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 )
 
+aws.iam.RolePolicyAttachment("eksClusterPolicy",
+    role=node_role.name,
+    policy_arn="arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"  # ✅ Fix: Ensures cluster communication
+)
+
+aws.iam.RolePolicyAttachment("ssmManagedInstanceCore",
+    role=node_role.name,
+    policy_arn="arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"  # ✅ Fix: Allows troubleshooting via AWS Systems Manager
+)
+
+# Create Security Group for EKS Cluster
+eks_security_group = aws.ec2.SecurityGroup("eks-cluster-sg",
+    vpc_id=vpc.id,
+    description="Allow inbound traffic for EKS",
+    ingress=[
+        { "protocol": "tcp", "from_port": 443, "to_port": 443, "cidr_blocks": ["0.0.0.0/0"] },  # ✅ API Access
+        { "protocol": "tcp", "from_port": 1025, "to_port": 65535, "cidr_blocks": ["0.0.0.0/0"] }  # ✅ Worker Node Communication
+    ],
+    egress=[
+        { "protocol": "-1", "from_port": 0, "to_port": 0, "cidr_blocks": ["0.0.0.0/0"] }  # ✅ Allow all outbound traffic
+    ]
+)
+
 # Create an EKS Cluster (without default node group)
 cluster = eks.Cluster("my-eks-cluster",
     vpc_id=vpc.id,
     public_subnet_ids=[subnet1.id, subnet2.id],
     skip_default_node_group=True,
-    instance_roles=[node_role]
+    instance_roles=[node_role],
+    endpoint_public_access=True,  # ✅ Ensure public API access for debugging
+    security_group=eks_security_group
 )
 
-# Create a Managed Node Group (FIXED: Removed `node_security_group`)
+# Create a Managed Node Group
 node_group = eks.ManagedNodeGroup("my-node-group",
     cluster=cluster,
     node_group_name="eks-node-group",
