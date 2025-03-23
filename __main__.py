@@ -104,7 +104,7 @@ cluster = eks.Cluster("my-eks-cluster",
     skip_default_node_group=True,
     instance_roles=[node_role],
     endpoint_public_access=True,  # ✅ Ensure public API access for debugging
-    security_group=eks_security_group
+    security_group_ids=[eks_security_group.id]
 )
 
 # Create a Managed Node Group
