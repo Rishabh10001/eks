@@ -42,4 +42,4 @@ jobs:
         run: pulumi stack select test1 || pulumi stack init eks-test/test1
 
       - name: Deploy EKS Cluster
-        run: pulumi destroy --yes
+        run: pulumi up --yes
