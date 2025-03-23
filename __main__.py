@@ -8,24 +8,24 @@ aws_region = aws.get_region().name
 # Fetch available AZs in the region
 azs = aws.get_availability_zones()
 
-# Create a new VPC
+# Create a new VPC (check if it already exists to avoid conflicts)
 vpc = aws.ec2.Vpc("my-vpc",
-    cidr_block="10.0.0.0/16",
+    cidr_block="10.1.0.0/16",  # ✅ Change CIDR block to avoid conflicts
     enable_dns_support=True,
     enable_dns_hostnames=True
 )
 
-# Create two subnets in different Availability Zones
+# Create two subnets in different AZs with unique CIDR blocks
 subnet1 = aws.ec2.Subnet("subnet-1",
     vpc_id=vpc.id,
-    cidr_block="10.0.1.0/24",
+    cidr_block="10.1.1.0/24",  # ✅ Unique CIDR
     availability_zone=azs.names[0],  # First AZ
     map_public_ip_on_launch=True
 )
 
 subnet2 = aws.ec2.Subnet("subnet-2",
     vpc_id=vpc.id,
-    cidr_block="10.0.2.0/24",
+    cidr_block="10.1.2.0/24",  # ✅ Unique CIDR
     availability_zone=azs.names[1],  # Second AZ
     map_public_ip_on_launch=True
 )
