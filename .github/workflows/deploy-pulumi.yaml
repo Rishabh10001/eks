@@ -39,7 +39,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
       - name: Select Pulumi Stack
-        run: pulumi stack select eks-test/test1 || pulumi stack init eks-test/test1
+        run: pulumi stack select test1 || pulumi stack init eks-test/test1
 
       - name: Deploy EKS Cluster
         run: pulumi up --yes
